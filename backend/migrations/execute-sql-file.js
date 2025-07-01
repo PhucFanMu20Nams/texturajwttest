@@ -21,9 +21,17 @@ async function executeSqlFile() {
     // Test the database connection
     await sequelize.authenticate();
     console.log('Database connection established successfully');
+    console.log(`Connected to: ${config.DB} as ${config.USER} on ${config.HOST}:${config.PORT}`);
 
     // Read the SQL file
     const sqlFilePath = path.join(__dirname, '../data/data.sql');
+    console.log(`Reading SQL file from: ${sqlFilePath}`);
+    
+    if (!fs.existsSync(sqlFilePath)) {
+      console.error(`SQL file not found at: ${sqlFilePath}`);
+      return false;
+    }
+    
     const sqlStatements = fs.readFileSync(sqlFilePath, 'utf8');
 
     // Execute SQL as a transaction

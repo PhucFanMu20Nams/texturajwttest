@@ -46,9 +46,12 @@ CREATE TABLE product_sizes (
 -- Admin table
 CREATE TABLE IF NOT EXISTS admins (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
   username VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL
+  password VARCHAR(255) NOT NULL,
+  "isActive" BOOLEAN DEFAULT TRUE,
+  "lastLogin" TIMESTAMP WITH TIME ZONE,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert product data
@@ -140,5 +143,5 @@ INSERT INTO product_sizes ("productId", size) VALUES
 ('nike-killshot-2-leather', '45');
 
 -- Insert admin account
-INSERT INTO admins (name, username, password) VALUES
-('Tuấn Kiệt', 'Teekayyj', 'AdminTuanKiet');
+INSERT INTO admins (username, password) VALUES
+('admin', '$2a$12$FAW0s2MJeK6mFr4QR7Re5uyYXQTLGiHJKqkYRpPQnGnmKPYpNI/Be');

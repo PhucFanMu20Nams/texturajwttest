@@ -3,13 +3,16 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
-const productRoutes = require('./routes/products');
 const db = require('./models');
+
+// Import routes
+const productRoutes = require('./routes/products');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Helmet configuration
+// Security middleware
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'", "*"],
@@ -17,10 +20,7 @@ app.use(helmet.contentSecurityPolicy({
   }
 }));
 
-app.use(helmet.crossOriginResourcePolicy({ 
-  policy: "cross-origin" 
-}));
-
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(compression());
 
 // CORS configuration
@@ -36,25 +36,28 @@ app.use('/images', express.static(path.join(__dirname, 'images'), {
   setHeaders: function(res) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.set('Timing-Allow-Origin', '*');
   }
 }));
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 
-// Connect to database and start server
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
+// Start server
 const startServer = async () => {
   try {
-    // Test database connection
     await db.sequelize.authenticate();
-    console.log('Database connection established successfully');
+    console.log('Database connection established');
     
-    // Sync database models (don't use force: true in production)
     await db.sequelize.sync();
     console.log('Database synchronized');
     
-    // Start the server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

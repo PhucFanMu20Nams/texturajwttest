@@ -24,6 +24,7 @@ db.products = require("./product.model.js")(sequelize, Sequelize);
 db.productDetails = require("./productDetail.model.js")(sequelize, Sequelize);
 db.productImages = require("./productImage.model.js")(sequelize, Sequelize);
 db.productSizes = require("./productSize.model.js")(sequelize, Sequelize);
+db.admins = require("./admin.model.js")(sequelize, Sequelize);
 
 // Define relationships
 db.products.hasMany(db.productDetails, { as: "details", foreignKey: "productId" });
