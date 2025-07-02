@@ -433,13 +433,19 @@ function Header() {
           <ul className="nav-list">
             {/* Men Category with Advanced Mega Menu */}
             <li className="nav-item montserrat-font mega-menu-parent">
-              <a 
-                href="#" 
-                onClick={(e) => handleNavClick(e, 'men')}
+              <Link 
+                to="/men" 
+                onClick={(e) => {
+                  // Allow navigation to /men page, but also show mega menu on hover
+                  if (activeMegaMenu === 'men') {
+                    setActiveMegaMenu(null);
+                  }
+                }}
+                onMouseEnter={() => setActiveMegaMenu('men')}
                 className={activeMegaMenu === 'men' ? 'active' : ''}
               >
                 Men
-              </a>
+              </Link>
               {activeMegaMenu === 'men' && (
                 <div className="mega-menu-panel">
                   <div className="mega-menu-content">

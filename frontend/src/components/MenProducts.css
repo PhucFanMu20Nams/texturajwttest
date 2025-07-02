@@ -1,0 +1,328 @@
+/* Men Products Page - Redesigned Structure */
+.men-products-page {
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+.men-products-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left Sidebar - Filters */
+.men-products-sidebar {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+
+.category-breadcrumb {
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.category-breadcrumb span {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}
+
+/* Filter Groups */
+.filter-group {
+  margin-bottom: 30px;
+}
+
+.filter-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 16px 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-box input:focus {
+  border-color: #333;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+/* Filter Options */
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.filter-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #333;
+}
+
+.filter-option span {
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+}
+
+/* Price Range */
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-range input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+}
+
+.price-range span {
+  color: #666;
+  font-weight: 500;
+}
+
+/* Main Content */
+.men-products-main {
+  flex: 1;
+  margin-left: 250px;
+  background-color: white;
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: white;
+}
+
+.page-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.instagram-promo {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  padding: 25px 30px;
+  gap: 30px;
+  max-width: 500px;
+}
+
+.promo-text {
+  text-align: left;
+}
+
+.promo-text p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.promo-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.promo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px;
+  background-color: #f8f8f8;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.product-image {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 15px;
+}
+
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.product-brand {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.product-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+/* Pagination */
+.pagination {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8f8f8;
+}
+
+.next-btn {
+  background-color: #333;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.next-btn:hover {
+  background-color: #555;
+}
+
+.next-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Loading and Empty States */
+.loading,
+.no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .men-products-sidebar {
+    width: 100%;
+    position: static;
+    height: auto;
+  }
+  
+  .men-products-main {
+    margin-left: 0;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .page-title {
+    font-size: 32px;
+  }
+  
+  .instagram-promo {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+}

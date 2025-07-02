@@ -11,6 +11,7 @@ import Suggestion from './components/Suggestion';
 import ProductDetail from './components/ProductDetail';
 import InboxModal from './components/InboxModal';
 import SearchResults from './components/SearchResults';
+import MenProducts from './components/MenProducts';
 import Login from './Admin/Login';
 import Dashboard from './Admin/Dashboard'; 
 import Products from './Admin/Products'; 
@@ -41,6 +42,7 @@ function AppContent() {
               <PopularItems />
             </>
           } />
+          <Route path="/men" element={<MenProducts />} />
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/products" element={<Products />} />
