@@ -51,6 +51,10 @@ exports.getAllProducts = async (req, res) => {
       return productData;
     });
 
+    // Set cache headers for successful GET requests
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
+
     res.json({
       total: count,
       page,
@@ -91,6 +95,10 @@ exports.searchProducts = async (req, res) => {
     });
 
     const products = rows.map(product => product.toJSON());
+
+    // Set cache headers for search results
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
 
     res.json({
       total: count,
@@ -136,6 +144,10 @@ exports.getProductById = async (req, res) => {
     if (productData.sizes) {
       productData.sizes = productData.sizes.map(s => s.size);
     }
+    
+    // Set cache headers for individual product
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
     
     res.json(productData);
   } catch (error) {

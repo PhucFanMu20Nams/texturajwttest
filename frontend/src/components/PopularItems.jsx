@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './PopularItems.css';
+import apiService from '../utils/apiService.js';
 
 function PopularItems() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch products from the backend
-    fetch('http://localhost:5000/api/products?limit=6')
-      .then(response => response.json())
-      .then(data => {
+    // Fetch products using the cached API service
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.getProducts({ limit: 6 });
         console.log('Products data:', data);
         setProducts(data.products || []);
-        setLoading(false);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching products:', error);
-        setLoading(false);
-        
         // Fallback to sample data if API fails
         setProducts(sampleProducts);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Sample product data as fallback - using your specified 6 products

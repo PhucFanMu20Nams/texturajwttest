@@ -12,15 +12,18 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security middleware
-app.use(helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'", "*"],
-    imgSrc: ["'self'", "*", "data:"]
-  }
+// Security middleware with cache control disabled
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'", "*"],
+      imgSrc: ["'self'", "*", "data:"]
+    }
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  // Disable Helmet's default cache control - we handle it ourselves
+  noCache: false
 }));
-
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(compression());
 
 // CORS configuration
@@ -31,11 +34,15 @@ app.use(cors({
 
 app.use(express.json());
 
-// Static file serving
+// Static file serving with aggressive caching for images
 app.use('/images', express.static(path.join(__dirname, 'images'), {
-  setHeaders: function(res) {
+  setHeaders: function(res, path) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Set aggressive cache headers for images (1 year)
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.set('Expires', new Date(Date.now() + 31536000 * 1000).toUTCString());
   }
 }));
 

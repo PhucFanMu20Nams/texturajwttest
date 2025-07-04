@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
+import apiService from '../utils/apiService.js';
 
 function Header() {
   // Existing search functionality state
@@ -27,12 +28,12 @@ function Header() {
         setActiveMegaMenu(null);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Existing search functions (keeping your original functionality)
+  // Enhanced search functions with caching
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -47,17 +48,16 @@ function Header() {
     }
   };
 
-  const fetchSearchResults = (query) => {
-    fetch(`http://localhost:5000/api/products/search?q=${encodeURIComponent(query)}&limit=5`)
-      .then(res => res.json())
-      .then(data => {
-        setSearchResults(data.products || []);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error('Search error:', err);
-        setIsLoading(false);
-      });
+  const fetchSearchResults = async (query) => {
+    try {
+      const data = await apiService.searchProducts(query, { limit: 5 });
+      setSearchResults(data.products || []);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleProductClick = (productId) => {

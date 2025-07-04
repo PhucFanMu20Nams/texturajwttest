@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MenProducts.css';
+import apiService from '../utils/apiService.js';
 
 function MenProducts() {
   const [products, setProducts] = useState([]);
@@ -26,34 +27,33 @@ function MenProducts() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams({
+      const params = {
         category: 'Men',
         page: currentPage,
         limit: 6
-      });
+      };
 
       // Add array filters
       if (filters.brand.length > 0) {
-        queryParams.append('brand', filters.brand.join(','));
+        params.brand = filters.brand.join(',');
       }
       if (filters.type.length > 0) {
-        queryParams.append('type', filters.type.join(','));
+        params.type = filters.type.join(',');
       }
       if (filters.color.length > 0) {
-        queryParams.append('color', filters.color.join(','));
+        params.color = filters.color.join(',');
       }
       if (filters.style.length > 0) {
-        queryParams.append('style', filters.style.join(','));
+        params.style = filters.style.join(',');
       }
       if (filters.priceMin) {
-        queryParams.append('minPrice', filters.priceMin);
+        params.minPrice = filters.priceMin;
       }
       if (filters.priceMax) {
-        queryParams.append('maxPrice', filters.priceMax);
+        params.maxPrice = filters.priceMax;
       }
 
-      const response = await fetch(`http://localhost:5000/api/products?${queryParams}`);
-      const data = await response.json();
+      const data = await apiService.getProducts(params);
       
       setProducts(data.products || []);
       setTotalPages(Math.ceil((data.total || 0) / 6));

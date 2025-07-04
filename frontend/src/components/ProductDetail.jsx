@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useModal } from '../context/ModalContext';
 import './ProductDetail.css';
+import apiService from '../utils/apiService.js';
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -19,23 +20,22 @@ function ProductDetail() {
     // Remove the colon from product ID if present
     const cleanId = productId.replace(/:/g, '');
     
-    // Fetch product data from API
-    fetch(`http://localhost:5000/api/products/${cleanId}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Product not found');
-        }
-        return response.json();
-      })
-      .then(data => {
+    // Fetch product data using cached API service
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await apiService.getProductById(cleanId);
         console.log('Product data:', data);
         setProduct(data);
-        setLoading(false);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching product:', error);
+        setProduct(null);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProduct();
   }, [productId]);
 
   if (loading) return <div className="loading">Loading...</div>;

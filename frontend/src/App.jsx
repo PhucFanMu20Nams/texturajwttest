@@ -15,6 +15,7 @@ import MenProducts from './components/MenProducts';
 import Login from './Admin/Login';
 import Dashboard from './Admin/Dashboard'; 
 import Products from './Admin/Products'; 
+import apiService from './utils/apiService.js';
 
 function AppContent() {
   const [showModal, setShowModal] = useState(false);
@@ -22,9 +23,42 @@ function AppContent() {
   const location = useLocation();
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-      .then(res => res.json())
-      .then(data => setProducts(data));
+    // Initialize cache and preload data
+    const initializeApp = async () => {
+      try {
+        // Preload popular data for better user experience
+        await apiService.preloadData();
+        
+        // Get products for any component that still needs them
+        const data = await apiService.getProducts();
+        setProducts(data);
+      } catch (error) {
+        // Silent error handling for users
+        console.error('Failed to initialize app data:', error);
+      }
+    };
+
+    initializeApp();
+    
+    // Clean up expired cache entries periodically (silent background process)
+    const cleanupInterval = setInterval(() => {
+      const stats = apiService.getCacheStats();
+      
+      // Only log cache stats for admin users
+      if (window.location.pathname.startsWith('/admin')) {
+        console.log('Cache stats:', stats);
+      }
+      
+      // If cache is getting too large, clean up silently
+      if (stats.totalSizeKB > 5000) { // 5MB threshold
+        if (window.location.pathname.startsWith('/admin')) {
+          console.log('Cache size threshold reached, cleaning up...');
+        }
+        // The cleanup is already handled automatically in the cache manager
+      }
+    }, 5 * 60 * 1000); // Every 5 minutes
+    
+    return () => clearInterval(cleanupInterval);
   }, []);
 
   // Ẩn header/footer nếu là bất kỳ trang nào thuộc /admin

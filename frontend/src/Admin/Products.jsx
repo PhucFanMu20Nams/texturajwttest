@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Toolbar from './Toolbar';
 import './Products.css';
+import apiService from '../utils/apiService.js';
 
 function AddProductModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState({
@@ -93,9 +94,18 @@ function Products() {
   const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products?limit=1000')
-      .then(res => res.json())
-      .then(data => setProducts(data.products || data));
+    // Fetch products using cached API service
+    const fetchProducts = async () => {
+      try {
+        const data = await apiService.getProducts({ limit: 1000 });
+        setProducts(data.products || data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      }
+    };
+
+    fetchProducts();
   }, [showAdd, successMsg]);
 
   const getImageUrl = (imagePath) => {
@@ -111,30 +121,32 @@ function Products() {
       (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Gửi dữ liệu lên backend để lưu vào DB và upload ảnh
+  // Gửi dữ liệu lên backend để lưu vào DB và upload ảnh với cache invalidation
   const handleAddProduct = async (form) => {
-    const formData = new FormData();
-    formData.append('id', form.id);
-    formData.append('name', form.name);
-    formData.append('brand', form.brand);
-    formData.append('price', form.price);
-    formData.append('category', form.category);
-    form.images.forEach((img, idx) => {
-      // Đổi tên file: id-1.jpg, id-2.jpg,...
-      const ext = img.name.split('.').pop();
-      const file = new File([img], `${form.id}-${idx + 1}.${ext}`, { type: img.type });
-      formData.append('images', file);
-    });
+    try {
+      const formData = new FormData();
+      formData.append('id', form.id);
+      formData.append('name', form.name);
+      formData.append('brand', form.brand);
+      formData.append('price', form.price);
+      formData.append('category', form.category);
+      form.images.forEach((img, idx) => {
+        // Đổi tên file: id-1.jpg, id-2.jpg,...
+        const ext = img.name.split('.').pop();
+        const file = new File([img], `${form.id}-${idx + 1}.${ext}`, { type: img.type });
+        formData.append('images', file);
+      });
 
-    const res = await fetch('http://localhost:5000/api/products', {
-      method: 'POST',
-      body: formData
-    });
-    if (res.ok) {
+      // Get token from localStorage (assuming it's stored there)
+      const token = localStorage.getItem('admin_token');
+      
+      await apiService.uploadProductWithImages(formData, token);
+      
       setShowAdd(false);
-      setSuccessMsg('Add product successfull');
+      setSuccessMsg('Add product successful');
       setTimeout(() => setSuccessMsg(''), 2000);
-    } else {
+    } catch (error) {
+      console.error('Error adding product:', error);
       setSuccessMsg('Có lỗi xảy ra!');
     }
   };

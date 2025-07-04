@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import './SearchResults.css';
+import apiService from '../utils/apiService.js';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -18,20 +19,21 @@ const SearchResults = () => {
     }
   }, [query, page]);
 
-  const fetchResults = () => {
+  const fetchResults = async () => {
     setLoading(true);
-    fetch(`http://localhost:5000/api/products/search?q=${encodeURIComponent(query)}&page=${page}&limit=12`)
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data.products || []);
-        setTotalPages(data.pages || 0);
-        setTotalResults(data.total || 0);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Search results error:', err);
-        setLoading(false);
-      });
+    try {
+      const data = await apiService.searchProducts(query, { page, limit: 12 });
+      setProducts(data.products || []);
+      setTotalPages(data.pages || 0);
+      setTotalResults(data.total || 0);
+    } catch (error) {
+      console.error('Search results error:', error);
+      setProducts([]);
+      setTotalPages(0);
+      setTotalResults(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatPrice = (price) => {
