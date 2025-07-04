@@ -239,15 +239,74 @@ class ApiService {
   /**
    * Get cache statistics
    */
-  getCacheStats() {
-    return cacheManager.getStats();
+  async getCacheStats() {
+    // Get client-side stats
+    const clientStats = cacheManager.getStats();
+    
+    try {
+      // Get server-side stats if user is admin (has token)
+      const token = localStorage.getItem('token');
+      if (token) {
+        const url = `${this.baseURL}/cache/stats`;
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const { stats: serverStats } = await response.json();
+          
+          // Combine client and server stats
+          return {
+            client: clientStats,
+            server: serverStats
+          };
+        }
+      }
+      
+      // If server stats couldn't be fetched, just return client stats
+      return {
+        client: clientStats,
+        server: null
+      };
+    } catch (error) {
+      console.error('Error fetching server cache stats:', error);
+      return {
+        client: clientStats,
+        server: null
+      };
+    }
   }
 
   /**
-   * Clear all caches
+   * Clear all caches (both client and server if admin)
    */
-  clearAllCaches() {
-    return cacheManager.clearAll();
+  async clearAllCaches() {
+    // Clear client-side cache
+    cacheManager.clearAll();
+    
+    try {
+      // Clear server-side cache if user is admin (has token)
+      const token = localStorage.getItem('token');
+      if (token) {
+        const url = `${this.baseURL}/cache/clear`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          console.log('Server-side cache cleared successfully');
+        }
+      }
+    } catch (error) {
+      console.error('Error clearing server cache:', error);
+    }
+    
+    return true;
   }
 }
 

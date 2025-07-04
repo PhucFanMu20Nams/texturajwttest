@@ -1,5 +1,39 @@
 const db = require('../models');
 const { Op } = require('sequelize');
+const { productCache } = require('../utils/cacheManager');
+
+/**
+ * Helper function to invalidate cache entries when products are modified
+ * @param {string} productId - ID of the modified product (optional)
+ */
+const invalidateProductCache = (productId = null) => {
+  // Always clear product listings cache as counts/pages may have changed
+  const productsPattern = 'products_';
+  const searchPattern = 'search_';
+  
+  // Invalidate specific product if ID is provided
+  if (productId) {
+    const productDetailPattern = `product_detail_{"id":"${productId}"}`;
+    productCache.delete(productDetailPattern);
+  }
+  
+  // Get all keys and delete those matching our patterns
+  const keys = Array.from(productCache.cache.keys());
+  let invalidatedCount = 0;
+  
+  keys.forEach(key => {
+    if (
+      key.startsWith(productsPattern) || 
+      key.startsWith(searchPattern)
+    ) {
+      productCache.delete(key);
+      invalidatedCount++;
+    }
+  });
+  
+  console.log(`Invalidated ${invalidatedCount} cache entries`);
+  return invalidatedCount;
+};
 
 // Get all products with pagination and filtering
 exports.getAllProducts = async (req, res) => {
@@ -7,6 +41,21 @@ exports.getAllProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const offset = (page - 1) * limit;
+    
+    // Generate a cache key based on the request parameters
+    const cacheKey = productCache.generateKey('products', { 
+      page, 
+      limit, 
+      ...req.query 
+    });
+    
+    // Check if we have a cached response
+    const cachedData = productCache.get(cacheKey);
+    
+    if (cachedData) {
+      // Return cached data
+      return res.json(cachedData);
+    }
     
     // Build filter conditions
     const whereClause = {};
@@ -55,12 +104,18 @@ exports.getAllProducts = async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
 
-    res.json({
+    // Prepare response data
+    const responseData = {
       total: count,
       page,
       pages: Math.ceil(count / limit),
       products
-    });
+    };
+
+    // Cache the response data in memory
+    productCache.set(cacheKey, responseData);
+
+    res.json(responseData);
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Error fetching products' });
@@ -77,6 +132,19 @@ exports.searchProducts = async (req, res) => {
     
     if (!query) {
       return res.status(400).json({ message: 'Search query is required' });
+    }
+    
+    // Generate cache key based on search query and pagination
+    const cacheKey = productCache.generateKey('search', { 
+      query, page, limit 
+    });
+    
+    // Check if we have a cached response
+    const cachedData = productCache.get(cacheKey);
+    
+    if (cachedData) {
+      // Return cached data
+      return res.json(cachedData);
     }
 
     const { count, rows } = await db.products.findAndCountAll({
@@ -115,7 +183,20 @@ exports.searchProducts = async (req, res) => {
 // Get product by ID
 exports.getProductById = async (req, res) => {
   try {
-    const product = await db.products.findByPk(req.params.id, {
+    const productId = req.params.id;
+    
+    // Generate a cache key for this product
+    const cacheKey = productCache.generateKey('product_detail', { id: productId });
+    
+    // Check if we have a cached response
+    const cachedData = productCache.get(cacheKey);
+    
+    if (cachedData) {
+      // Return cached data
+      return res.json(cachedData);
+    }
+    
+    const product = await db.products.findByPk(productId, {
       include: [
         { model: db.productDetails, as: 'details', attributes: ['detail'] },
         { model: db.productImages, as: 'gallery', attributes: ['imageUrl'] },
@@ -148,6 +229,9 @@ exports.getProductById = async (req, res) => {
     // Set cache headers for individual product
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.setHeader('Expires', new Date(Date.now() + 3600 * 1000).toUTCString());
+    
+    // Cache the product data with a 30-minute TTL (slightly shorter than list views)
+    productCache.set(cacheKey, productData, 1800000);
     
     res.json(productData);
   } catch (error) {
@@ -196,6 +280,9 @@ exports.createProduct = async (req, res) => {
         db.productSizes.create({ productId: id, size })
       ));
     }
+
+    // Invalidate product listings cache
+    invalidateProductCache();
 
     res.status(201).json({ 
       message: 'Product created successfully', 
@@ -301,6 +388,9 @@ exports.updateProduct = async (req, res) => {
       ));
     }
 
+    // Invalidate cache for this product and listings
+    invalidateProductCache(productId);
+
     res.json({
       success: true,
       data: {
@@ -374,6 +464,9 @@ exports.partialUpdateProduct = async (req, res) => {
       ));
     }
 
+    // Invalidate cache for this product and listings
+    invalidateProductCache(productId);
+
     res.json({
       success: true,
       data: {
@@ -418,6 +511,9 @@ exports.deleteProduct = async (req, res) => {
     
     // Delete the product
     await existingProduct.destroy();
+
+    // Invalidate cache for this product and listings
+    invalidateProductCache(productId);
 
     res.json({
       success: true,

@@ -9,6 +9,16 @@ const db = require('./models');
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
 
+// Import cache routes with error handling
+let cacheRoutes;
+try {
+  cacheRoutes = require('./routes/cache');
+  console.log('✅ Cache routes loaded successfully');
+} catch (error) {
+  console.error('❌ Error loading cache routes:', error.message);
+  cacheRoutes = null;
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -49,6 +59,14 @@ app.use('/images', express.static(path.join(__dirname, 'images'), {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+
+// Only mount cache routes if they loaded successfully
+if (cacheRoutes) {
+  app.use('/api/cache', cacheRoutes);
+  console.log('✅ Cache routes mounted at /api/cache');
+} else {
+  console.error('❌ Cache routes not mounted due to loading error');
+}
 
 // Error handler
 app.use((err, req, res, next) => {
