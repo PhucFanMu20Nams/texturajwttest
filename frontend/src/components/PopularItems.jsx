@@ -27,45 +27,45 @@ function PopularItems() {
     fetchProducts();
   }, []);
 
-  // Sample product data as fallback - using your specified 6 products
+  // Sample product data as fallback - using your specified 6 products with new PD#### IDs
   const sampleProducts = [
     {
-      id: "nike-dunk-low",
+      id: "PD0001",
       name: 'Nike Dunk Low',
       brand: 'Nike',
       price: 1800000,
       image: '/images/products/nike-dunk-low.jpg'
     },
     {
-      id: "nike-dunk-low-panda",
+      id: "PD0002",
       name: 'Nike Dunk Low Retro Panda',
       brand: 'Nike',
       price: 2300000,
       image: '/assets/images/products/nike_dunk_retro_panda_1.jpg'
     },
     {
-      id: "adidas-samba-og",
+      id: "PD0003",
       name: 'Adidas Samba OG',
       brand: 'Adidas',
       price: 1900000,
       image: '/images/products/adidas-samba-og.jpg'
     },
     {
-      id: "nike-sportswear-club-button-up",
+      id: "PD0004",
       name: 'Nike Sportswear Club Woven Short-Sleeve Button-Up',
       brand: 'Nike',
       price: 890000,
       image: '/images/products/nike-button-up.jpg'
     },
     {
-      id: "nike-sportswear-club-tshirt-ss25",
+      id: "PD0005",
       name: 'Nike Sportswear Club T-Shirt SS25',
       brand: 'Nike',
       price: 550000,
       image: '/images/products/nike-tshirt-ss25.jgp'
     },
     {
-      id: "nike-killshot-2-leather",
+      id: "PD0006",
       name: 'Nike Killshot 2 Leather',
       brand: 'Nike',
       price: 1700000,

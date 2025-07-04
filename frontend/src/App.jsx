@@ -16,6 +16,7 @@ import Login from './Admin/Login';
 import Dashboard from './Admin/Dashboard'; 
 import Products from './Admin/Products'; 
 import apiService from './utils/apiService.js';
+import cacheManager from './utils/cacheManager.js';
 
 function AppContent() {
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +27,9 @@ function AppContent() {
     // Initialize cache and preload data
     const initializeApp = async () => {
       try {
+        // Clear any cached data with old product IDs
+        cacheManager.clearAll();
+        
         // Preload popular data for better user experience
         await apiService.preloadData();
         
